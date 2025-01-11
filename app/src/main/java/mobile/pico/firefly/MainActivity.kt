@@ -12,6 +12,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Scaffold
@@ -20,9 +21,12 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.viewinterop.AndroidView
 import mobile.pico.firefly.ui.theme.AppTheme
+import mobile.pico.firefly.ui.theme.DarkColorScheme
+import mobile.pico.firefly.ui.theme.LightColorScheme
 import java.net.HttpURLConnection
 import java.net.URL
 import java.net.URLConnection
@@ -37,7 +41,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             AppTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { padding ->
-                    WebViewScreen("http://10.10.10.10:6976", padding)
+                    WebViewScreen(isSystemInDarkTheme(), "http://10.10.10.10:6976", padding)
                 }
             }
         }
@@ -45,7 +49,7 @@ class MainActivity : ComponentActivity() {
 
     @SuppressLint("SetJavaScriptEnabled")
     @Composable
-    fun WebViewScreen(url: String, padding: PaddingValues) {
+    fun WebViewScreen(darkTheme: Boolean, url: String, padding: PaddingValues) {
         val canGoBack = remember { mutableStateOf(false) }
 
         DisposableEffect(Unit) {
@@ -63,6 +67,9 @@ class MainActivity : ComponentActivity() {
                 overScrollMode = WebView.OVER_SCROLL_NEVER
 
                 webView = this
+                setBackgroundColor(
+                    (if (darkTheme) DarkColorScheme else LightColorScheme).background.toArgb()
+                )
                 webViewClient = object : WebViewClient() {
                     override fun shouldInterceptRequest(
                         view: WebView?, request: WebResourceRequest?
@@ -83,18 +90,18 @@ class MainActivity : ComponentActivity() {
                                 val responseBody =
                                     inputStream.bufferedReader().use { it.readText() }
                                 val modifiedBody = responseBody.replace(
-                                        Regex("""env\(safe-area-inset-left(, ?\d+px)?\)"""),
-                                        "${padding.calculateLeftPadding(LayoutDirection.Ltr).value}px"
-                                    ).replace(
-                                        Regex("""env\(safe-area-inset-top(, ?\d+px)?\)"""),
-                                        "${padding.calculateTopPadding().value}px"
-                                    ).replace(
-                                        Regex("""env\(safe-area-inset-right(, ?\d+px)?\)"""),
-                                        "${padding.calculateRightPadding(LayoutDirection.Ltr).value}px"
-                                    ).replace(
-                                        Regex("""env\(safe-area-inset-bottom(, ?\d+px)?\)"""),
-                                        "${padding.calculateBottomPadding().value}px"
-                                    )
+                                    Regex("""env\(safe-area-inset-left(, ?\d+px)?\)"""),
+                                    "${padding.calculateLeftPadding(LayoutDirection.Ltr).value}px"
+                                ).replace(
+                                    Regex("""env\(safe-area-inset-top(, ?\d+px)?\)"""),
+                                    "${padding.calculateTopPadding().value}px"
+                                ).replace(
+                                    Regex("""env\(safe-area-inset-right(, ?\d+px)?\)"""),
+                                    "${padding.calculateRightPadding(LayoutDirection.Ltr).value}px"
+                                ).replace(
+                                    Regex("""env\(safe-area-inset-bottom(, ?\d+px)?\)"""),
+                                    "${padding.calculateBottomPadding().value}px"
+                                )
 
                                 return WebResourceResponse(
                                     URLConnection.guessContentTypeFromName(requestURL),
