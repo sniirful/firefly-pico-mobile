@@ -127,6 +127,14 @@ class MainActivity : ComponentActivity() {
                         return null
                     }
 
+                    override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
+                        view?.evaluateJavascript(
+                            """
+                                localStorage.darkTheme = "$darkTheme";
+                            """.trimIndent(), null
+                        )
+                    }
+
                     override fun onPageFinished(view: WebView?, url: String?) {
                         canGoBack.value = view?.canGoBack() ?: false
                     }
