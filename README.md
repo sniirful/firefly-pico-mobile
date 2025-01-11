@@ -10,4 +10,4 @@ You probably won't need it, but if you:
 then this app might suit you.
 
 ## Installation
-The only way at the moment is to compile it yourself.
+You can get the latest APK build by following [this](https://github.com/sniirful/firefly-pico-mobile/releases/latest) link.
