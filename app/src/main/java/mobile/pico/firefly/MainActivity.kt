@@ -1,6 +1,7 @@
 package mobile.pico.firefly
 
 import android.annotation.SuppressLint
+import android.graphics.Bitmap
 import android.os.Build
 import android.os.Bundle
 import android.webkit.CookieManager
@@ -24,6 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.viewinterop.AndroidView
+import mobile.pico.firefly.FirstLaunch.getUrl
 import mobile.pico.firefly.ui.theme.AppTheme
 import mobile.pico.firefly.ui.theme.DarkColorScheme
 import mobile.pico.firefly.ui.theme.LightColorScheme
@@ -32,7 +34,9 @@ import java.net.URL
 import java.net.URLConnection
 
 class MainActivity : ComponentActivity() {
-    private lateinit var webView: WebView
+    // this cannot be lateinit because of the activity pausing,
+    // if the dialog is pending the app crashes
+    private var webView: WebView? = null
 
     @RequiresApi(Build.VERSION_CODES.R)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -41,7 +45,11 @@ class MainActivity : ComponentActivity() {
         setContent {
             AppTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { padding ->
-                    WebViewScreen(isSystemInDarkTheme(), "http://10.10.10.10:6976", padding)
+                    getUrl { url ->
+                        setContent {
+                            WebViewScreen(isSystemInDarkTheme(), url, padding)
+                        }
+                    }
                 }
             }
         }
@@ -54,13 +62,13 @@ class MainActivity : ComponentActivity() {
 
         DisposableEffect(Unit) {
             onDispose {
-                webView.destroy()
+                webView?.destroy()
             }
         }
 
         BackHandler(enabled = canGoBack.value) {
-            webView.goBack()
-            canGoBack.value = webView.canGoBack()
+            webView?.goBack()
+            canGoBack.value = webView?.canGoBack() ?: false
         }
 
         AndroidView(factory = { context ->
@@ -144,6 +152,6 @@ class MainActivity : ComponentActivity() {
 
     override fun onPause() {
         super.onPause()
-        webView.saveState(Bundle())
+        webView?.saveState(Bundle())
     }
 }
