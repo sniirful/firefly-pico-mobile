@@ -60,6 +60,7 @@ class MainActivity : ComponentActivity() {
 
         BackHandler(enabled = canGoBack.value) {
             webView.goBack()
+            canGoBack.value = webView.canGoBack()
         }
 
         AndroidView(factory = { context ->
