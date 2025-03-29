@@ -84,11 +84,14 @@ class MainActivity : ComponentActivity() {
                         view: WebView?, request: WebResourceRequest?
                     ): WebResourceResponse? {
                         try {
-                            if (request?.method == "GET" && request.url?.toString()?.let { url ->
-                                    url.endsWith(".css") || url.endsWith(".js") || url.endsWith(".html") || url.endsWith(
-                                        "/"
-                                    )
-                                } == true) {
+                            if (
+                                request?.method == "GET" && request.url?.toString()?.let { url ->
+                                    url.endsWith(".css")
+                                            || url.endsWith(".js")
+                                            || url.endsWith(".html")
+                                            || url.endsWith("/")
+                                } == true
+                            ) {
                                 val requestURL = request.url.toString()
                                 val connection =
                                     URL(requestURL).openConnection() as HttpURLConnection
